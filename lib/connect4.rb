@@ -174,7 +174,23 @@ module Connect4
 end
 
 if $PROGRAM_NAME == __FILE__
-  board = Connect4::Board.new 4, 4, 3, :"\e[48;5;#{16+6*6*5}m \e[49m", :"\e[48;5;#{16+6*6*5+6*5}m \e[0m"
+  def print_board(board)
+    off    = "\e[0m"
+    yellow = "\e[48;5;#{16+6*6*5}m"
+    red    = "\e[48;5;#{16+6*6*5+6*5}m"
+    blue   = "\e[48;5;#{16+5}m"
+    black  = "\e[48;5;16m"
+    substitutions = {
+      board.tile1.to_s => "#{red}  #{off}",
+      board.tile2.to_s => "#{yellow}  #{off}",
+      " "              => "#{black}  #{off}",
+      "|"              => "#{blue} #{off}",
+      "\n"             => "\n#{blue}#{' '*(board.width*3+1)}#{off}\n",
+    }
+    puts ("\n#{board}").chars.map { |char| substitutions[char] || char }.join
+  end
+
+  board = Connect4::Board.new 4, 4, 3, :a, :b
   until board.over?
     # robot move
     move = Connect4::Robot.new(board).best_move
@@ -183,8 +199,7 @@ if $PROGRAM_NAME == __FILE__
     break if board.over?
 
     # human move
-    puts
-    puts board
+    print_board board
     print "Enter a move: "
     move = nil
     available = board.available_columns
@@ -193,7 +208,6 @@ if $PROGRAM_NAME == __FILE__
     break if board.over?
   end
 
-  puts
-  puts board
+  print_board board
   puts "Game over, winer: #{board.winner}"
 end
