@@ -141,10 +141,15 @@ module Connect4
       # require "pry"
       # binding.pry
       # play out the game for each available move
-      moves = board.available_columns.map do |col|
+      moves_to_boards = board.available_columns.map do |col|
         new_board = board.move(col)
         winner    = new_board.winner
         return col, :won if winner == me # take the win
+        [col, new_board]
+      end
+
+      moves = moves_to_boards.map do |col, new_board|
+        winner = new_board.winner
         if winner == you # we lost
           [col, :lost]
         else
