@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
+require 'connect4/ansi'
+
+# It's actually connect3 on a 4x4 board, this is b/c the robot
+# takes too long to calculate on a larger board (I always got
+# impatient and cut it off, so IDK how long)
+board = Connect4::Ansi::Board.new 4, 4, 3, :a, :b
+
+until board.over?
+  # robot moves first (mostly b/c it plays second-place kind of stupidly:
+  # since first-player is guaranteed to win if they play correctly, it
+  # predicts it will lose and rates every available move as a loss,
+  # thus it sees every move as equivalent and doesn't do obvious things like
+  # blocking the user's win)
+  board = board.move Connect4::Robot.new(board).best_move
+  break if board.over?
+
+  # human move
+  puts board
+  print "Enter a move: "
+  move = nil
+  available = board.available_columns
+  move = gets.to_i while available.any? && !available.include?(move)
+  board = board.move move
+  break if board.over?
+end
+
+puts board
+puts "Game over, winer: #{board.winner}"
